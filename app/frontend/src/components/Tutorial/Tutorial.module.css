@@ -1,4 +1,4 @@
-.examplesNavList {
+.tutorialsNavList {
     list-style: none;
     padding-left: 0;
     display: flex;
@@ -8,7 +8,7 @@
     justify-content: center;
 }
 
-.example {
+.tutorial {
     word-break: break-word;
     background: #dbdbdb;
     border-radius: 8px;
@@ -17,25 +17,34 @@
     padding: 20px;
     margin-bottom: 5px;
     cursor: pointer;
+    align-items: center;
+    text-align: center;
 }
 
-.example:hover {
+.tutorial:hover {
     box-shadow:
         0px 8px 16px rgba(0, 0, 0, 0.14),
         0px 0px 2px rgba(0, 0, 0, 0.12);
     outline: 2px solid rgba(115, 118, 225, 1);
 }
 
-.exampleText {
+.tutorialText {
     margin: 0;
     font-size: 22px;
     width: 280px;
-    height: 100px;
+    height: auto;
 }
 
 @media only screen and (max-height: 780px) {
-    .exampleText {
+    .tutorialText {
         font-size: 20px;
-        height: 80px;
+        height: auto;
     }
+}
+
+
+.logo {
+    width: 50px;
+    height: auto;
+    margin-bottom: 10px;
 }
