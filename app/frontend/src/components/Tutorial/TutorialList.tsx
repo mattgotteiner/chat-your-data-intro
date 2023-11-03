@@ -2,7 +2,10 @@ import { Tutorial } from "./Tutorial";
 
 import styles from "./Tutorial.module.css";
 
-import openai from "../../assets/openai.svg" 
+import openai from "../../assets/openai.svg"
+import embeddings from "../../assets/embeddings.svg"
+import search from "../../assets/search.svg"
+import agents from "../../assets/agents.svg"
 
 export type TutorialModel = {
     title: string;
@@ -12,9 +15,24 @@ export type TutorialModel = {
 
 const TUTORIALS: TutorialModel[] = [
     {
-        title: "Intro to Language Models",
+        title: "Language Models",
         id: 0,
         icon: openai
+    },
+    {
+        title: "Embeddings",
+        id: 1,
+        icon: embeddings
+    },
+    {
+        title: "Retrieval Augmented Generation",
+        id: 2,
+        icon: search
+    },
+    {
+        title: "Agents",
+        id: 3,
+        icon: agents
     }
 ];
 
