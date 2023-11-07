@@ -135,3 +135,8 @@ sup {
     content: "";
     animation: loading 1s infinite;
 }
+
+.tutorialImage {
+    width: 448px;
+    height: 256px;
+}

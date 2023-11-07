@@ -134,7 +134,7 @@ If you cannot generate a search query, return just the number 0.
                     return self
             async def CreateTutorial(message):
                 return TutorialGenerator(message)
-            return ({"data_points": " ", "tutorial_id": tutorial_id}, CreateTutorial(f'{tutorial_question["response"]}\n{follow_up_questions}'))
+            return ({"data_points": " ", "tutorial_id": tutorial_id, "tutorial_image": tutorial_question.get("imagePath")}, CreateTutorial(f'{tutorial_question["response"]}\n{follow_up_questions}'))
 
         user_query_request = "Generate search query for: " + original_user_query
 
@@ -306,6 +306,10 @@ If you cannot generate a search query, return just the number 0.
         extra_info, chat_coroutine = await self.run_until_final_call(
             history, overrides, tutorial_id, auth_claims, should_stream=True
         )
+        tutorial_image = None
+        if "tutorial_image" in extra_info:
+            tutorial_image = extra_info["tutorial_image"]
+            del extra_info["tutorial_image"]
         yield {
             "choices": [
                 {
@@ -343,7 +347,7 @@ If you cannot generate a search query, return just the number 0.
                 "choices": [
                     {
                         "delta": {"role": self.ASSISTANT},
-                        "context": {"followup_questions": followup_questions, "tutorial_id": tutorial_id},
+                        "context": {"followup_questions": followup_questions, "tutorial_id": tutorial_id, "tutorial_image": tutorial_image},
                         "finish_reason": None,
                         "index": 0,
                     }

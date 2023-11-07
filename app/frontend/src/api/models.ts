@@ -14,6 +14,7 @@ export type ResponseContext = {
     data_points: string[];
     followup_questions: string[] | null;
     tutorial_id?: number;
+    tutorial_image?: string;
 };
 
 export type ResponseChoice = {

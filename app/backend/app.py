@@ -69,6 +69,9 @@ async def favicon():
 async def assets(path):
     return await send_from_directory(Path(__file__).resolve().parent / "static" / "assets", path)
 
+@bp.route("/images/<path:path>")
+async def image(path):
+    return await bp.send_static_file(path)
 
 # Serve content files from blob storage from within the app to keep the example self-contained.
 # *** NOTE *** this assumes that the content files are public, or at least that all users of the app

@@ -31,6 +31,7 @@ export const Answer = ({
 }: Props) => {
     const followupQuestions = answer.choices[0].context.followup_questions;
     const followupTutorialId = answer.choices[0].context.tutorial_id;
+    const tutorialImage = answer.choices[0].context.tutorial_image;
     const messageContent = answer.choices[0].message.content;
     const parsedAnswer = useMemo(() => parseAnswerToHtml(messageContent, isStreaming, onCitationClicked), [answer]);
 
@@ -79,6 +80,12 @@ export const Answer = ({
                             );
                         })}
                     </Stack>
+                </Stack.Item>
+            )}
+
+            {!!tutorialImage && (
+                <Stack.Item>
+                    <img className={styles.tutorialImage} src={tutorialImage} alt="Tutorial Image" />
                 </Stack.Item>
             )}
 

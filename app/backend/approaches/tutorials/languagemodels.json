@@ -5,6 +5,7 @@
             "How do language models understand and generate text like humans?",
             "What are some practical applications of language models in real life?",
             "Are there different types of language models, and how do they compare to each other?"
-        ]
+        ],
+        "imagePath": "images/introlanguagemodels.png"
     }
 }
