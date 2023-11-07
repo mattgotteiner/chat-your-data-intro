@@ -2,6 +2,8 @@ import json
 import logging
 import re
 from typing import Any, AsyncGenerator, Optional, Union
+import os
+import asyncio
 
 import aiohttp
 import openai
@@ -13,6 +15,7 @@ from core.messagebuilder import MessageBuilder
 from core.modelhelper import get_token_limit
 from text import nonewlines
 
+import tiktoken
 
 class ChatReadRetrieveReadApproach(Approach):
     # Chat roles
@@ -27,22 +30,21 @@ class ChatReadRetrieveReadApproach(Approach):
     top documents from search, then constructs a prompt with them, and then uses OpenAI to generate an completion
     (answer) with that prompt.
     """
-    system_message_chat_conversation = """Assistant helps the company employees with their healthcare plan questions, and questions about the employee handbook. Be brief in your answers.
+    system_message_chat_conversation = """Assistant is teaching the user about how to chat with your data using language models. The user doesn't have any prior knowledge. Be thorough and clear in your explanations.
 Answer ONLY with the facts listed in the list of sources below. If there isn't enough information below, say you don't know. Do not generate answers that don't use the sources below. If asking a clarifying question to the user would help, ask the question.
-For tabular information return it as an html table. Do not return markdown format. If the question is not in English, answer in the language used in the question.
 Each source has a name followed by colon and the actual information, always include the source name for each fact you use in the response. Use square brackets to reference the source, for example [info1.txt]. Don't combine sources, list each source separately, for example [info1.txt][info2.pdf].
 {follow_up_questions_prompt}
 {injected_prompt}
 """
     follow_up_questions_prompt_content = """Generate 3 very brief follow-up questions that the user would likely ask next.
 Enclose the follow-up questions in double angle brackets. Example:
-<<Are there exclusions for prescriptions?>>
-<<Which pharmacies can be ordered from?>>
-<<What is the limit for over-the-counter medication?>>
+<<What's an embedding?>>
+<<Why don't I get consistent responses from language models?>>
+<<How can I avoid going over the context token limit?>>
 Do no repeat questions that have already been asked.
 Make sure the last question ends with ">>"."""
 
-    query_prompt_template = """Below is a history of the conversation so far, and a new question asked by the user that needs to be answered by searching in a knowledge base about employee healthcare plans and the employee handbook.
+    query_prompt_template = """Below is a history of the conversation so far, and a new question asked by the user that needs to be answered by searching in a knowledge base about chat your data tutorials.
 You have access to Azure Cognitive Search index with 100's of documents.
 Generate a search query based on the conversation and the new question.
 Do not include cited source filenames and document names e.g info.txt or doc.pdf in the search query terms.
@@ -52,11 +54,15 @@ If the question is not in English, translate the question to English before gene
 If you cannot generate a search query, return just the number 0.
 """
     query_prompt_few_shots = [
-        {"role": USER, "content": "What are my health plans?"},
-        {"role": ASSISTANT, "content": "Show available health plans"},
-        {"role": USER, "content": "does my plan cover cardio?"},
-        {"role": ASSISTANT, "content": "Health plan cardio coverage"},
+        {"role": USER, "content": "What's a language model"},
+        {"role": ASSISTANT, "content": "language model"},
+        {"role": USER, "content": "Why would I need to use retrieval augmented generation?"},
+        {"role": ASSISTANT, "content": "retrieval augmented generation use cases"},
     ]
+
+    language_models_tutorial_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutorials", "languagemodels.json")
+
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
     def __init__(
         self,
@@ -83,10 +89,15 @@ If you cannot generate a search query, return just the number 0.
         self.query_speller = query_speller
         self.chatgpt_token_limit = get_token_limit(chatgpt_model)
 
+        self.tutorials = []
+        with open(self.language_models_tutorial_path, "r") as f:
+            self.tutorials.append(json.load(f))
+
     async def run_until_final_call(
         self,
         history: list[dict[str, str]],
         overrides: dict[str, Any],
+        tutorial_id: int,
         auth_claims: dict[str, Any],
         should_stream: bool = False,
     ) -> tuple:
@@ -97,6 +108,34 @@ If you cannot generate a search query, return just the number 0.
         filter = self.build_filter(overrides, auth_claims)
 
         original_user_query = history[-1]["content"]
+
+        if tutorial_id != -1 and original_user_query in self.tutorials[tutorial_id]:
+            tutorial_question = self.tutorials[tutorial_id][original_user_query]
+            follow_up_questions = "\n".join([f"<<{question}>>" for question in tutorial_question["followUpQuestions"]])
+            class TutorialGenerator:
+                def __init__(self, message):
+                    self.message_encoding = [ChatReadRetrieveReadApproach.encoding.decode_single_token_bytes(t).decode('utf-8') for t in ChatReadRetrieveReadApproach.encoding.encode(message)]
+                    self.iterations = 0
+                async def __anext__(self):
+                    if self.iterations < len(self.message_encoding):
+                        response = {
+                                "choices": [
+                                {
+                                    "delta": {"role": ChatReadRetrieveReadApproach.ASSISTANT, "content": self.message_encoding[self.iterations]}
+                                },
+                            ],
+                            "object": "chat.completion.chunk"
+                        }
+                        self.iterations += 1
+                        return response
+                    raise StopAsyncIteration
+
+                def __aiter__(self):
+                    return self
+            async def CreateTutorial(message):
+                return TutorialGenerator(message)
+            return ({"data_points": " ", "tutorial_id": tutorial_id}, CreateTutorial(f'{tutorial_question["response"]}\n{follow_up_questions}'))
+
         user_query_request = "Generate search query for: " + original_user_query
 
         functions = [
@@ -188,7 +227,7 @@ If you cannot generate a search query, return just the number 0.
         content = "\n".join(results)
 
         follow_up_questions_prompt = (
-            self.follow_up_questions_prompt_content if overrides.get("suggest_followup_questions") else ""
+            self.follow_up_questions_prompt_content if overrides.get("suggest_followup_questions", True) else ""
         )
 
         # STEP 3: Generate a contextual and content specific answer using the search results and chat history
@@ -222,6 +261,7 @@ If you cannot generate a search query, return just the number 0.
             "data_points": results,
             "thoughts": f"Searched for:<br>{query_text}<br><br>Conversations:<br>"
             + msg_to_display.replace("\n", "<br>"),
+            "tutorial_id": tutorial_id
         }
 
         chat_coroutine = openai.ChatCompletion.acreate(
@@ -239,15 +279,16 @@ If you cannot generate a search query, return just the number 0.
         self,
         history: list[dict[str, str]],
         overrides: dict[str, Any],
+        tutorial_id: int,
         auth_claims: dict[str, Any],
         session_state: Any = None,
     ) -> dict[str, Any]:
         extra_info, chat_coroutine = await self.run_until_final_call(
-            history, overrides, auth_claims, should_stream=False
+            history, overrides, tutorial_id, auth_claims, should_stream=False
         )
         chat_resp = dict(await chat_coroutine)
         chat_resp["choices"][0]["context"] = extra_info
-        if overrides.get("suggest_followup_questions"):
+        if overrides.get("suggest_followup_questions", True):
             content, followup_questions = self.extract_followup_questions(chat_resp["choices"][0]["message"]["content"])
             chat_resp["choices"][0]["message"]["content"] = content
             chat_resp["choices"][0]["context"]["followup_questions"] = followup_questions
@@ -258,11 +299,12 @@ If you cannot generate a search query, return just the number 0.
         self,
         history: list[dict[str, str]],
         overrides: dict[str, Any],
+        tutorial_id: int,
         auth_claims: dict[str, Any],
         session_state: Any = None,
     ) -> AsyncGenerator[dict, None]:
         extra_info, chat_coroutine = await self.run_until_final_call(
-            history, overrides, auth_claims, should_stream=True
+            history, overrides, tutorial_id, auth_claims, should_stream=True
         )
         yield {
             "choices": [
@@ -284,7 +326,7 @@ If you cannot generate a search query, return just the number 0.
             if event["choices"]:
                 # if event contains << and not >>, it is start of follow-up question, truncate
                 content = event["choices"][0]["delta"].get("content", "")
-                if overrides.get("suggest_followup_questions") and "<<" in content:
+                if overrides.get("suggest_followup_questions", True) and "<<" in content:
                     followup_questions_started = True
                     earlier_content = content[: content.index("<<")]
                     if earlier_content:
@@ -301,7 +343,7 @@ If you cannot generate a search query, return just the number 0.
                 "choices": [
                     {
                         "delta": {"role": self.ASSISTANT},
-                        "context": {"followup_questions": followup_questions},
+                        "context": {"followup_questions": followup_questions, "tutorial_id": tutorial_id},
                         "finish_reason": None,
                         "index": 0,
                     }
@@ -314,14 +356,15 @@ If you cannot generate a search query, return just the number 0.
     ) -> Union[dict[str, Any], AsyncGenerator[dict[str, Any], None]]:
         overrides = context.get("overrides", {})
         auth_claims = context.get("auth_claims", {})
+        tutorial_id = context.get("tutorial_id", -1)
         if stream is False:
             # Workaround for: https://github.com/openai/openai-python/issues/371
             async with aiohttp.ClientSession() as s:
                 openai.aiosession.set(s)
-                response = await self.run_without_streaming(messages, overrides, auth_claims, session_state)
+                response = await self.run_without_streaming(messages, overrides, tutorial_id, auth_claims, session_state)
             return response
         else:
-            return self.run_with_streaming(messages, overrides, auth_claims, session_state)
+            return self.run_with_streaming(messages, overrides, tutorial_id, auth_claims, session_state)
 
     def get_messages_from_history(
         self,

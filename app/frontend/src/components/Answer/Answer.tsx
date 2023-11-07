@@ -15,7 +15,7 @@ interface Props {
     onCitationClicked: (filePath: string) => void;
     onThoughtProcessClicked: () => void;
     onSupportingContentClicked: () => void;
-    onFollowupQuestionClicked?: (question: string) => void;
+    onFollowupQuestionClicked?: (question: string, tutorialId: number | undefined) => void;
     showFollowupQuestions?: boolean;
 }
 
@@ -30,6 +30,7 @@ export const Answer = ({
     showFollowupQuestions
 }: Props) => {
     const followupQuestions = answer.choices[0].context.followup_questions;
+    const followupTutorialId = answer.choices[0].context.tutorial_id;
     const messageContent = answer.choices[0].message.content;
     const parsedAnswer = useMemo(() => parseAnswerToHtml(messageContent, isStreaming, onCitationClicked), [answer]);
 
@@ -55,7 +56,7 @@ export const Answer = ({
                             title="Show supporting content"
                             ariaLabel="Show supporting content"
                             onClick={() => onSupportingContentClicked()}
-                            disabled={!answer.choices[0].context.data_points?.length}
+                            disabled={answer.choices[0].context.data_points?.length > 0}
                         />
                     </div>
                 </Stack>
@@ -87,7 +88,7 @@ export const Answer = ({
                         <span className={styles.followupQuestionLearnMore}>Follow-up questions:</span>
                         {followupQuestions.map((x, i) => {
                             return (
-                                <a key={i} className={styles.followupQuestion} title={x} onClick={() => onFollowupQuestionClicked(x)}>
+                                <a key={i} className={styles.followupQuestion} title={x} onClick={() => onFollowupQuestionClicked(x, followupTutorialId)}>
                                     {`${x}`}
                                 </a>
                             );

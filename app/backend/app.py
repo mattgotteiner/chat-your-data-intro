@@ -144,7 +144,7 @@ async def chat():
         approach = current_app.config[CONFIG_CHAT_APPROACH]
         result = await approach.run(
             request_json["messages"],
-            stream=request_json.get("stream", False),
+            stream=request_json.get("stream", True),
             context=context,
             session_state=request_json.get("session_state"),
         )

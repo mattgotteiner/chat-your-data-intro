@@ -1,0 +1,10 @@
+{
+    "Teach me about language models": {
+        "response": "Welcome to our language models tutorial! In this beginner-friendly guide, we'll break down the basics of how language models work in a simple and friendly manner. You'll discover how these clever AI tools can understand and generate human-like text, making them pretty fascinating. Let's dive in and demystify the magic behind these virtual wordsmiths!",
+        "followUpQuestions": [
+            "How do language models understand and generate text like humans?",
+            "What are some practical applications of language models in real life?",
+            "Are there different types of language models, and how do they compare to each other?"
+        ]
+    }
+}

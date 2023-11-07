@@ -4,21 +4,6 @@ export const enum RetrievalMode {
     Text = "text"
 }
 
-export type ChatAppRequestOverrides = {
-    retrieval_mode?: RetrievalMode;
-    semantic_ranker?: boolean;
-    semantic_captions?: boolean;
-    exclude_category?: string;
-    top?: number;
-    temperature?: number;
-    prompt_template?: string;
-    prompt_template_prefix?: string;
-    prompt_template_suffix?: string;
-    suggest_followup_questions?: boolean;
-    use_oid_security_filter?: boolean;
-    use_groups_security_filter?: boolean;
-};
-
 export type ResponseMessage = {
     content: string;
     role: string;
@@ -28,6 +13,7 @@ export type ResponseContext = {
     thoughts: string | null;
     data_points: string[];
     followup_questions: string[] | null;
+    tutorial_id?: number;
 };
 
 export type ResponseChoice = {
@@ -47,7 +33,7 @@ export type ChatAppResponse = {
 };
 
 export type ChatAppRequestContext = {
-    overrides?: ChatAppRequestOverrides;
+    tutorial_id?: number
 };
 
 export type ChatAppRequest = {

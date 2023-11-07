@@ -14,8 +14,6 @@ import { AnalysisPanel, AnalysisPanelTabs } from "../../components/AnalysisPanel
 import { ClearChatButton } from "../../components/ClearChatButton";
 
 const Chat = () => {
-    const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
-
     const lastQuestionRef = useRef<string>("");
     const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null);
 
@@ -72,7 +70,7 @@ const Chat = () => {
         };
         return fullResponse;
     };
-    const makeApiRequest = async (question: string) => {
+    const makeApiRequest = async (question: string, tutorialId: number | undefined = undefined) => {
         lastQuestionRef.current = question;
 
         error && setError(undefined);
@@ -90,6 +88,7 @@ const Chat = () => {
                 messages: [...messages, { content: question, role: "user" }],
                 stream: true,
                 context: {
+                    tutorial_id: tutorialId
                 },
                 // ChatAppProtocol: Client must pass on any session state received from the server
                 session_state: answers.length ? answers[answers.length - 1][1].choices[0].session_state : null
@@ -122,8 +121,8 @@ const Chat = () => {
     useEffect(() => chatMessageStreamEnd.current?.scrollIntoView({ behavior: "smooth" }), [isLoading]);
     useEffect(() => chatMessageStreamEnd.current?.scrollIntoView({ behavior: "auto" }), [streamedAnswers]);
 
-    const onTutorialClicked = (id: number) => {
-        //makeApiRequest(example);
+    const onTutorialClicked = (tutorialQuestion: string, tutorialId: number) => {
+        makeApiRequest(tutorialQuestion, tutorialId);
     };
 
     const onShowCitation = (citation: string, index: number) => {
