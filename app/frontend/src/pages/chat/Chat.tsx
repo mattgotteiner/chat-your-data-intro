@@ -175,8 +175,10 @@ const Chat = () => {
                                                 onCitationClicked={c => onShowCitation(c, index)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                onFollowupQuestionClicked={q => makeApiRequest(q)}
-                                                showFollowupQuestions={answers.length - 1 === index}
+                                                onFollowupQuestionClicked={(q, id) => {
+                                                    makeApiRequest(q, id)
+                                                }}
+                                                showFollowupQuestions={true}
                                             />
                                         </div>
                                     </div>
@@ -194,8 +196,8 @@ const Chat = () => {
                                                 onCitationClicked={c => onShowCitation(c, index)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                onFollowupQuestionClicked={q => makeApiRequest(q)}
-                                                showFollowupQuestions={answers.length - 1 === index}
+                                                onFollowupQuestionClicked={(q, id) => makeApiRequest(q, id)}
+                                                showFollowupQuestions={true}
                                             />
                                         </div>
                                     </div>
@@ -230,7 +232,7 @@ const Chat = () => {
                     </div>
                 </div>
 
-                {answers.length > 0 && activeAnalysisPanelTab && (
+                {answers.length > 0 && selectedAnswer < answers.length && activeAnalysisPanelTab && (
                     <AnalysisPanel
                         className={styles.chatAnalysisPanel}
                         activeCitation={activeCitation}

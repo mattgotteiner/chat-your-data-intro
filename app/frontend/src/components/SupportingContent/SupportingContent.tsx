@@ -9,7 +9,7 @@ interface Props {
 export const SupportingContent = ({ supportingContent }: Props) => {
     return (
         <ul className={styles.supportingContentNavList}>
-            {supportingContent.map((x, i) => {
+            {supportingContent.map && supportingContent.map((x, i) => {
                 const parsed = parseSupportingContentItem(x);
 
                 return (

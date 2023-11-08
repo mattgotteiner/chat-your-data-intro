@@ -104,7 +104,7 @@ If you cannot generate a search query, return just the number 0.
         has_text = overrides.get("retrieval_mode") in ["text", "hybrid", None]
         has_vector = overrides.get("retrieval_mode") in ["vectors", "hybrid", None]
         use_semantic_captions = True if overrides.get("semantic_captions") and has_text else False
-        top = overrides.get("top", 3)
+        top = overrides.get("top", 5)
         filter = self.build_filter(overrides, auth_claims)
 
         original_user_query = history[-1]["content"]
@@ -134,7 +134,8 @@ If you cannot generate a search query, return just the number 0.
                     return self
             async def CreateTutorial(message):
                 return TutorialGenerator(message)
-            return ({"data_points": " ", "tutorial_id": tutorial_id, "tutorial_image": tutorial_question.get("imagePath")}, CreateTutorial(f'{tutorial_question["response"]}\n{follow_up_questions}'))
+            response = tutorial_question["response"].replace("\\n", "\n")
+            return ({"data_points": " ", "tutorial_id": tutorial_id, "tutorial_image": tutorial_question.get("imagePath")}, CreateTutorial(f'{response}\n{follow_up_questions}'))
 
         user_query_request = "Generate search query for: " + original_user_query
 
@@ -325,11 +326,13 @@ If you cannot generate a search query, return just the number 0.
 
         followup_questions_started = False
         followup_content = ""
+        total_content = ""
         async for event in await chat_coroutine:
             # "2023-07-01-preview" API version has a bug where first response has empty choices
             if event["choices"]:
                 # if event contains << and not >>, it is start of follow-up question, truncate
                 content = event["choices"][0]["delta"].get("content", "")
+                total_content += content
                 if overrides.get("suggest_followup_questions", True) and "<<" in content:
                     followup_questions_started = True
                     earlier_content = content[: content.index("<<")]
@@ -341,6 +344,7 @@ If you cannot generate a search query, return just the number 0.
                     followup_content += content
                 else:
                     yield event
+        print(total_content)
         if followup_content:
             _, followup_questions = self.extract_followup_questions(followup_content)
             yield {

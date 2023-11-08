@@ -15,7 +15,7 @@ interface Props {
     onCitationClicked: (filePath: string) => void;
     onThoughtProcessClicked: () => void;
     onSupportingContentClicked: () => void;
-    onFollowupQuestionClicked?: (question: string, tutorialId: number | undefined) => void;
+    onFollowupQuestionClicked: (question: string, tutorialId: number | undefined) => void;
     showFollowupQuestions?: boolean;
 }
 
@@ -49,7 +49,7 @@ export const Answer = ({
                             title="Show thought process"
                             ariaLabel="Show thought process"
                             onClick={() => onThoughtProcessClicked()}
-                            disabled={!answer.choices[0].context.thoughts?.length}
+                            disabled={followupTutorialId !== undefined || (answer.choices[0].context.thoughts?.length ?? 0) > 0}
                         />
                         <IconButton
                             style={{ color: "black" }}
@@ -57,7 +57,7 @@ export const Answer = ({
                             title="Show supporting content"
                             ariaLabel="Show supporting content"
                             onClick={() => onSupportingContentClicked()}
-                            disabled={answer.choices[0].context.data_points?.length > 0}
+                            disabled={followupTutorialId !== undefined || answer.choices[0].context.data_points.map != null}
                         />
                     </div>
                 </Stack>
@@ -95,7 +95,9 @@ export const Answer = ({
                         <span className={styles.followupQuestionLearnMore}>Follow-up questions:</span>
                         {followupQuestions.map((x, i) => {
                             return (
-                                <a key={i} className={styles.followupQuestion} title={x} onClick={() => onFollowupQuestionClicked(x, followupTutorialId)}>
+                                <a key={i} className={styles.followupQuestion} title={x} onClick={() => {
+                                    onFollowupQuestionClicked(x, followupTutorialId);
+                                }}>
                                     {`${x}`}
                                 </a>
                             );

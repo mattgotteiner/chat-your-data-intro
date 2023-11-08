@@ -83,21 +83,8 @@ async def content_file(path: str):
         path_parts = path.rsplit("#page=", 1)
         path = path_parts[0]
     logging.info("Opening file %s at page %s", path)
-    blob_container_client = current_app.config[CONFIG_BLOB_CONTAINER_CLIENT]
-    try:
-        blob = await blob_container_client.get_blob_client(path).download_blob()
-    except ResourceNotFoundError:
-        logging.exception("Path not found: %s", path)
-        abort(404)
-    if not blob.properties or not blob.properties.has_key("content_settings"):
-        abort(404)
-    mime_type = blob.properties["content_settings"]["content_type"]
-    if mime_type == "application/octet-stream":
-        mime_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
-    blob_file = io.BytesIO()
-    await blob.readinto(blob_file)
-    blob_file.seek(0)
-    return await send_file(blob_file, mimetype=mime_type, as_attachment=False, attachment_filename=path)
+    return await send_from_directory(Path(__file__).resolve().parent.parent.parent / "data", path)
+
 
 
 def error_dict(error: Exception) -> dict:
