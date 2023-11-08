@@ -12,8 +12,14 @@ import { TutorialList } from "../../components/Tutorial";
 import { UserChatMessage } from "../../components/UserChatMessage";
 import { AnalysisPanel, AnalysisPanelTabs } from "../../components/AnalysisPanel";
 import { ClearChatButton } from "../../components/ClearChatButton";
+import { SettingsButton } from "../../components/SettingsButton";
 
 const Chat = () => {
+    const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
+    const [retrieveCount, setRetrieveCount] = useState<number>(3);
+    const [retrievalMode, setRetrievalMode] = useState<RetrievalMode>(RetrievalMode.Hybrid);
+    const [useSemanticRanker, setUseSemanticRanker] = useState<boolean>(true);
+
     const lastQuestionRef = useRef<string>("");
     const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null);
 
@@ -28,7 +34,7 @@ const Chat = () => {
     const [answers, setAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
     const [streamedAnswers, setStreamedAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
 
-    const handleAsyncRequest = async (question: string, answers: [string, ChatAppResponse][], setAnswers: Function, responseBody: ReadableStream<any>) => {
+    const handleAsyncRequest = async (question: string, responseBody: ReadableStream<any>) => {
         let answer: string = "";
         let askResponse: ChatAppResponse = {} as ChatAppResponse;
 
@@ -40,7 +46,8 @@ const Chat = () => {
                         ...askResponse,
                         choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
                     };
-                    setStreamedAnswers([...answers, [question, latestResponse]]);
+                    setStreamedAnswers([...streamedAnswers, [question, latestResponse]])
+                    setAnswers([...answers, [question, latestResponse]]);
                     resolve(null);
                 }, 33);
             });
@@ -88,7 +95,12 @@ const Chat = () => {
                 messages: [...messages, { content: question, role: "user" }],
                 stream: true,
                 context: {
-                    tutorial_id: tutorialId
+                    tutorial_id: tutorialId,
+                    overrides: {
+                        top: retrieveCount,
+                        retrieval_mode: retrievalMode,
+                        semantic_ranker: useSemanticRanker
+                    }
                 },
                 // ChatAppProtocol: Client must pass on any session state received from the server
                 session_state: answers.length ? answers[answers.length - 1][1].choices[0].session_state : null
@@ -98,7 +110,8 @@ const Chat = () => {
             if (!response.body) {
                 throw Error("No response body");
             }
-            const parsedResponse: ChatAppResponse = await handleAsyncRequest(question, answers, setAnswers, response.body);
+            const parsedResponse: ChatAppResponse = await handleAsyncRequest(question, response.body);
+            setStreamedAnswers([...streamedAnswers, [question, parsedResponse]])
             setAnswers([...answers, [question, parsedResponse]]);
         } catch (e) {
             setError(e);
@@ -120,6 +133,18 @@ const Chat = () => {
 
     useEffect(() => chatMessageStreamEnd.current?.scrollIntoView({ behavior: "smooth" }), [isLoading]);
     useEffect(() => chatMessageStreamEnd.current?.scrollIntoView({ behavior: "auto" }), [streamedAnswers]);
+
+    const onRetrieveCountChange = (_ev?: React.SyntheticEvent<HTMLElement, Event>, newValue?: string) => {
+        setRetrieveCount(parseInt(newValue || "3"));
+    };
+
+    const onRetrievalModeChange = (_ev: React.FormEvent<HTMLDivElement>, option?: IDropdownOption<RetrievalMode> | undefined, index?: number | undefined) => {
+        setRetrievalMode(option?.data || RetrievalMode.Hybrid);
+    };
+
+    const onUseSemanticRankerChange = (_ev?: React.FormEvent<HTMLElement | HTMLInputElement>, checked?: boolean) => {
+        setUseSemanticRanker(!!checked);
+    };
 
     const onTutorialClicked = (tutorialQuestion: string, tutorialId: number) => {
         makeApiRequest(tutorialQuestion, tutorialId);
@@ -150,6 +175,7 @@ const Chat = () => {
         <div className={styles.container}>
             <div className={styles.commandsContainer}>
                 <ClearChatButton className={styles.commandButton} onClick={clearChat} disabled={!lastQuestionRef.current || isLoading} />
+                <SettingsButton className={styles.commandButton} onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)} />
             </div>
             <div className={styles.chatRoot}>
                 <div className={styles.chatContainer}>
@@ -242,6 +268,42 @@ const Chat = () => {
                         activeTab={activeAnalysisPanelTab}
                     />
                 )}
+
+                <Panel
+                    headerText="Configure answer generation"
+                    isOpen={isConfigPanelOpen}
+                    isBlocking={false}
+                    onDismiss={() => setIsConfigPanelOpen(false)}
+                    closeButtonAriaLabel="Close"
+                    onRenderFooterContent={() => <DefaultButton onClick={() => setIsConfigPanelOpen(false)}>Close</DefaultButton>}
+                    isFooterAtBottom={true}
+                >
+                    <SpinButton
+                        className={styles.chatSettingsSeparator}
+                        label="Retrieve this many search results:"
+                        min={1}
+                        max={50}
+                        defaultValue={retrieveCount.toString()}
+                        onChange={onRetrieveCountChange}
+                    />
+                    <Checkbox
+                        className={styles.chatSettingsSeparator}
+                        checked={useSemanticRanker}
+                        label="Use semantic ranker for retrieval"
+                        onChange={onUseSemanticRankerChange}
+                    />
+                    <Dropdown
+                        className={styles.chatSettingsSeparator}
+                        label="Retrieval mode"
+                        options={[
+                            { key: "hybrid", text: "Vectors + Text (Hybrid)", selected: retrievalMode == RetrievalMode.Hybrid, data: RetrievalMode.Hybrid },
+                            { key: "vectors", text: "Vectors", selected: retrievalMode == RetrievalMode.Vectors, data: RetrievalMode.Vectors },
+                            { key: "text", text: "Text", selected: retrievalMode == RetrievalMode.Text, data: RetrievalMode.Text }
+                        ]}
+                        required
+                        onChange={onRetrievalModeChange}
+                    />
+                </Panel>
             </div>
         </div>
     );

@@ -82,7 +82,8 @@ async def content_file(path: str):
     if path.find("#page=") > 0:
         path_parts = path.rsplit("#page=", 1)
         path = path_parts[0]
-    logging.info("Opening file %s at page %s", path)
+        page = path_parts[1]
+    logging.info("Opening file %s at page %s", path, page)
     return await send_from_directory(Path(__file__).resolve().parent.parent.parent / "data", path)
 
 

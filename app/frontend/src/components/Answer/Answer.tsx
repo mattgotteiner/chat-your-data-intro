@@ -49,7 +49,7 @@ export const Answer = ({
                             title="Show thought process"
                             ariaLabel="Show thought process"
                             onClick={() => onThoughtProcessClicked()}
-                            disabled={followupTutorialId !== undefined || (answer.choices[0].context.thoughts?.length ?? 0) > 0}
+                            disabled={followupTutorialId !== -1}
                         />
                         <IconButton
                             style={{ color: "black" }}
@@ -57,7 +57,7 @@ export const Answer = ({
                             title="Show supporting content"
                             ariaLabel="Show supporting content"
                             onClick={() => onSupportingContentClicked()}
-                            disabled={followupTutorialId !== undefined || answer.choices[0].context.data_points.map != null}
+                            disabled={followupTutorialId !== -1}
                         />
                     </div>
                 </Stack>
