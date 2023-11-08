@@ -135,7 +135,7 @@ If you cannot generate a search query, return just the number 0.
             async def CreateTutorial(message):
                 return TutorialGenerator(message)
             response = tutorial_question["response"].replace("\\n", "\n")
-            return ({"data_points": " ", "tutorial_id": tutorial_id, "tutorial_image": tutorial_question.get("imagePath")}, CreateTutorial(f'{response}\n{follow_up_questions}'))
+            return ({"data_points": " ", "tutorial_id": tutorial_id, "has_response": True, "tutorial_image": tutorial_question.get("imagePath")}, CreateTutorial(f'{response}\n{follow_up_questions}'))
 
         user_query_request = "Generate search query for: " + original_user_query
 

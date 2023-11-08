@@ -31,6 +31,7 @@ export const Answer = ({
 }: Props) => {
     const followupQuestions = answer.choices[0].context.followup_questions;
     const followupTutorialId = answer.choices[0].context.tutorial_id;
+    const hasResponse = answer.choices[0].context.has_response;
     const tutorialImage = answer.choices[0].context.tutorial_image;
     const messageContent = answer.choices[0].message.content;
     const parsedAnswer = useMemo(() => parseAnswerToHtml(messageContent, isStreaming, onCitationClicked), [answer]);
@@ -39,7 +40,7 @@ export const Answer = ({
 
     return (
         <Stack className={`${styles.answerContainer} ${isSelected && styles.selected}`} verticalAlign="space-between">
-            <Stack.Item>
+            <Stack.Item className={styles.maxWidth}>
                 <Stack horizontal horizontalAlign="space-between">
                     <AnswerIcon />
                     <div>
@@ -49,7 +50,7 @@ export const Answer = ({
                             title="Show thought process"
                             ariaLabel="Show thought process"
                             onClick={() => onThoughtProcessClicked()}
-                            disabled={followupTutorialId !== -1}
+                            disabled={followupTutorialId !== -1 && hasResponse}
                         />
                         <IconButton
                             style={{ color: "black" }}
@@ -57,19 +58,19 @@ export const Answer = ({
                             title="Show supporting content"
                             ariaLabel="Show supporting content"
                             onClick={() => onSupportingContentClicked()}
-                            disabled={followupTutorialId !== -1}
+                            disabled={followupTutorialId !== -1 && hasResponse}
                         />
                     </div>
                 </Stack>
             </Stack.Item>
 
-            <Stack.Item grow>
+            <Stack.Item grow className={styles.maxWidth}>
                 <div className={styles.answerText} dangerouslySetInnerHTML={{ __html: sanitizedAnswerHtml }}></div>
             </Stack.Item>
 
             {!!parsedAnswer.citations.length && (
-                <Stack.Item>
-                    <Stack horizontal wrap tokens={{ childrenGap: 5 }}>
+                <Stack.Item className={styles.maxWidth}>
+                    <Stack horizontal wrap tokens={{ childrenGap: 5 }} className={styles.citationList}>
                         <span className={styles.citationLearnMore}>Citations:</span>
                         {parsedAnswer.citations.map((x, i) => {
                             const path = getCitationFilePath(x);
@@ -90,7 +91,7 @@ export const Answer = ({
             )}
 
             {!!followupQuestions?.length && showFollowupQuestions && onFollowupQuestionClicked && (
-                <Stack.Item>
+                <Stack.Item className={styles.maxWidth}>
                     <Stack horizontal wrap className={`${!!parsedAnswer.citations.length ? styles.followupQuestionsList : ""}`} tokens={{ childrenGap: 6 }}>
                         <span className={styles.followupQuestionLearnMore}>Follow-up questions:</span>
                         {followupQuestions.map((x, i) => {

@@ -54,7 +54,7 @@
 .chatMessageStream {
     flex-grow: 1;
     max-height: 1024px;
-    max-width: 1028px;
+    max-width: 1536px;
     width: 100%;
     overflow-y: auto;
     padding-left: 24px;
@@ -71,7 +71,8 @@
 }
 
 .chatMessageGptMinWidth {
-    max-width: 500px;
+    max-width: 1536px;
+    width: 100%;
     margin-bottom: 20px;
 }
 

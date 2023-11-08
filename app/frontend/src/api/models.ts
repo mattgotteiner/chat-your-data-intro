@@ -24,6 +24,7 @@ export type ResponseContext = {
     followup_questions: string[] | null;
     tutorial_id?: number;
     tutorial_image?: string;
+    has_response?: boolean;
 };
 
 export type ResponseChoice = {

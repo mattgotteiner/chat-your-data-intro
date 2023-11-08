@@ -151,12 +151,20 @@ const Chat = () => {
     };
 
     const onShowCitation = (citation: string, index: number) => {
+        // Combine the relative URL with the base URL
+        var absoluteURL = new URL(citation, document.baseURI);
+
+        // Open the absolute URL in a new tab
+        window.open(absoluteURL.href, '_blank');
+
+        /*
         if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
             setActiveAnalysisPanelTab(undefined);
         } else {
             setActiveCitation(citation);
             setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
         }
+        */
 
         setSelectedAnswer(index);
     };
