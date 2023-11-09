@@ -1,21 +1,8 @@
----
-name: ChatGPT + Enterprise data
-description: Chat with your data using OpenAI and Cognitive Search.
-languages:
-- python
-- typescript
-- bicep
-- azdeveloper
-products:
-- azure-openai
-- azure-cognitive-search
-- azure-app-service
-- azure
-page_type: sample
-urlFragment: azure-search-openai-demo
----
+# Chat Your Data Intro
 
-# ChatGPT + Enterprise data with Azure OpenAI and Cognitive Search
+Welcome to the Chat Your Data Intro! This project is a fork of the [azure-search-openai-demo](https://github.com/azure-samples/azure-search-openai-demo) and contains a limited set that project's functionality. Sample papers and blog posts related to chatting your data have been placed in the data folder, and the chat functionality has been updated with a set of tutorials around this content.
+
+If you are interested in learning more about language models, please take a look at Andrej Karpathy's [Neural Networks: Zero To Hero](https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ) tutorial series.
 
 ## Table of Contents
 
@@ -33,8 +20,6 @@ urlFragment: azure-search-openai-demo
 - [Sharing environments](#sharing-environments)
 - [Enabling optional features](#enabling-optional-features)
   - [Enabling Application Insights](#enabling-application-insights)
-  - [Enabling authentication](#enabling-authentication)
-  - [Enabling login and document level access control](#enabling-login-and-document-level-access-control)
   - [Enabling CORS for an alternate frontend](#enabling-cors-for-an-alternate-frontend)
 - [Using the app](#using-the-app)
 - [Running locally](#running-locally)
@@ -246,16 +231,6 @@ To inspect the performance of chat requests, use the "Drill into Samples" button
 ![Tracing screenshot](docs/transaction-tracing.png)
 
 To see any exceptions and server errors, navigate to the "Investigate -> Failures" blade and use the filtering tools to locate a specific exception. You can see Python stack traces on the right-hand side.
-
-### Enabling authentication
-
-By default, the deployed Azure web app will have no authentication or access restrictions enabled, meaning anyone with routable network access to the web app can chat with your indexed data.  You can require authentication to your Azure Active Directory by following the [Add app authentication](https://learn.microsoft.com/azure/app-service/scenario-secure-app-authentication-app-service) tutorial and set it up against the deployed web app.
-
-To then limit access to a specific set of users or groups, you can follow the steps from [Restrict your Azure AD app to a set of users](https://learn.microsoft.com/azure/active-directory/develop/howto-restrict-your-app-to-a-set-of-users) by changing "Assignment Required?" option under the Enterprise Application, and then assigning users/groups access.  Users not granted explicit access will receive the error message -AADSTS50105: Your administrator has configured the application <app_name> to block users unless they are specifically granted ('assigned') access to the application.-
-
-### Enabling login and document level access control
-
-By default, the deployed Azure web app allows users to chat with all your indexed data. You can enable an optional login system using Azure Active Directory to restrict access to indexed data based on the logged in user. Enable the optional login and document level access control system by following [this guide](./LoginAndAclSetup.md).
 
 ### Enabling CORS for an alternate frontend
 
