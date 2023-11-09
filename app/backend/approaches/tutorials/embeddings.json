@@ -1,0 +1,35 @@
+{
+    "Teach me about embeddings": {
+        "response": "Embeddings are numerical representations of concepts converted to number sequences. These representations allow computers to understand relationships between concepts. In the realm of text, for example, text can be converted into a vector form, enabling computations related to text search, text similarity, and other tasks to be performed more efficiently [ada-002-new-embedding-model.pdf#page=1].\\n\\nOpenAI has developed an embedding model, specifically the text-embedding-ada-002, which has been designed to be more capable, cost-effective, and simpler to use. This model replaces five separate models for text search, text similarity, and code search. It outperforms previous models and is priced significantly lower. You can query this model via the /embeddings endpoint using OpenAI's Python library [ada-002-new-embedding-model.pdf#page=1].\\n\\nEmbeddings can be used in learning a better embedding function, allowing for higher similarity calculations between relevant concepts and lower similarity with irrelevant ones. This is particularly useful in retrieval problems where positive examples are explicitly available, while negative examples need to be selected from a large pool [dense-passage-retrieval.pdf#page=3].",
+        "followUpQuestions": [
+            "What are some practical applications of embeddings?",
+            "How is text converted to vector form?",
+            "How is embedding model performance measured?"
+        ],
+        "imagePath": "images/embeddings-diagram.png"
+    },
+    "What are some practical applications of embeddings?": {
+        "response": "Embeddings have a wide range of practical applications, particularly in the field of natural language processing:\\n\\n1. Semantic Search: Embeddings can be used to map each sentence to a vector space where semantically similar sentences are close. By using a similarity measure like cosine-similarity or Manhattan/ Euclidean distance, semantically similar sentences can be found. This makes embeddings extremely efficient for semantic similarity search [sentence-bert.pdf#page=1].\\n\\n2. Clustering: In addition to semantic search, embeddings can also be used for clustering. By mapping sentences to a vector space, clusters of similar content can be formed. This is particularly useful in text analysis, where you might want to group together sentences or documents that are similar [sentence-bert.pdf#page=1].\\n\\n3. Personalizing, recommending, and searching content: Applications have incorporated embeddings to personalize, recommend, and search content. For instance, if you have a user's past reading history, you can use embeddings to recommend similar content that the user might like [ada-002-new-embedding-model.pdf#page=1].\\n\\n4. Question Answering: The Dense Passage Retriever (DPR) uses embeddings to optimize for maximizing inner products of the question and relevant passage vectors, which improves question-answering accuracy [dense-passage-retrieval.pdf#page=2].",
+        "followUpQuestions": [
+            "What is cosine similarity?",
+            "How can I use embeddings in my own projects?",
+            "What is the difference between dense and sparse embeddings?"
+        ]
+    },
+    "What is cosine similarity?": {
+        "response": "Cosine similarity is a metric used to measure how similar two vectors are. This measure of similarity is computed as the cosine of the angle between the two vectors. In the context of text embeddings, it is used to estimate the similarity between sentence embeddings. Cosine similarity treats all dimensions equally, meaning that each dimension of the vectors contributes equally to the final similarity score [sentence-bert.pdf#page=7].\\n\\nFor the STS (Semantic Textual Similarity) tasks in the sentence-BERT (SBERT) model, cosine similarity is used to estimate the similarities between sentence embeddings. This is different from SentEval, which fits a logistic regression classifier to the sentence embeddings, allowing certain dimensions to have higher or lower impact on the classification result [sentence-bert.pdf#page=7].\\n\\nIn the context of translating free-form text into admissible action steps, cosine similarity can be used to calculate the semantic distance between the predicted action phrase and each admissible environment action. This is done by comparing the embeddings of the output action phrase and environment actions, with the embeddings obtained through an embedding function [Language Models as Zero-Shot Planners.pdf#page=6].",
+        "followUpQuestions": [
+            "Can cosine similarity be used for vectors of different lengths?",
+            "What other metrics measure how similar two vectors are?",
+            "How is cosine similarity calculated?"
+        ]
+    },
+    "Can cosine similarity be used for vectors of different lengths?": {
+        "response": "It's important to understand that in the context of text vectors, the \"length\" typically refers to the dimensionality of the vector, not the length of the text. Each dimension in the vector represents some feature of the text. When we say two vectors are of different lengths, it usually means they have different numbers of dimensions.\\n\\nHowever, for cosine similarity to be calculated, the vectors need to have the same number of dimensions. If they don't, you would typically use some method to make the dimensions match, such as padding shorter vectors with zeros or reducing the dimensionality of longer vectors.\\n\\nOnce the vectors have the same number of dimensions, cosine similarity can be calculated. This is because cosine similarity measures the cosine of the angle between two vectors, which is a measure of the direction of the vectors, not their magnitude. This makes it particularly suited for high-dimensional spaces where Euclidean distance can become less meaningful [sentence-bert.pdf#page=1][dense-passage-retrieval.pdf#page=3].",
+        "followUpQuestions": [
+            "What is the process of padding vectors?",
+            "What is dimensionality reduction and how is it used in embeddings?",
+            "How do I choose between cosine similarity and Euclidean distance for my project?"
+        ]
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "Teach me about agents": {
+        "response": "In the context of the sources provided, an agent refers to an intelligent system that interacts with an environment to perform specific tasks. In the DEPS (Describe, Explain, Plan and Select) model, the agent is made up of a Large Language Model (LLM), which functions as both an Explainer and Planner, a Descriptor that is triggered by events, a goal Selector based on horizon prediction, and a goal-conditioned Controller [minecraft-planner.pdf#page=3].\\n\\nThe LLM-based Planner takes a high-level task (for instance, \"Obtain Diamond\") and breaks it down into a sequence of sub-goals in natural language, such as \"mine oak wood\". These sub-goals are then executed sequentially by the Controller [minecraft-planner.pdf#page=3].\\n\\nHowever, when a sub-goal fails, the Descriptor summarizes the current situation and sends it back to the Planner. The Planner, acting as an Explainer, identifies the errors in the previous plan and adjusts it accordingly [minecraft-planner.pdf#page=2].\\n\\nIn another approach, ReAct, the agent is considered in a general setup where it interacts with an environment to solve tasks. The agent receives an observation from the environment and takes an action following a certain policy. This involves reasoning and action generation [REACT.pdf#page=3].",
+        "followUpQuestions": [
+            "Tell me more about ReAct",
+            "What's a Large Language Model and how does it work?",
+            "What are some applications of agents?"
+        ]
+    },
+    "Tell me more about ReAct": {
+        "response": "ReAct is a novel paradigm that synergistically combines reasoning and acting with language models to solve diverse language reasoning and decision-making tasks. Unlike previous methods that perform either reasoning or action generation in isolation, ReAct prompts Large Language Models (LLMs) to generate both verbal reasoning traces and actions related to a task in an interleaved manner [REACT.pdf#page=2].\\n\\nThis approach allows the model to perform dynamic reasoning, enabling it to create, maintain, and adjust high-level plans for acting (reason to act). At the same time, it can interact with external environments, such as Wikipedia, to incorporate additional information into its reasoning (act to reason). This method has demonstrated consistent advantages over baselines that use actions only, indicating the importance of sparse, versatile reasoning in decision making [REACT.pdf#page=3].\\n\\nContrary to methods like Selection-Inference and STaR that divide the reasoning process into fixed steps, ReAct performs more than just isolated reasoning. It integrates model actions and their corresponding observations into a coherent stream of inputs, allowing the model to reason more accurately and tackle tasks beyond just reasoning, such as interactive decision making [REACT.pdf#page=9].\\n\\nIn addition to improving general applicability and performance, the combination of reasoning and acting in ReAct also contributes to model interpretability, trustworthiness, and diagnosability across all domains. It allows humans to readily distinguish information from the model's internal knowledge versus external environments and to inspect reasoning traces to understand the decision basis of model actions [REACT.pdf#page=3].",
+        "followUpQuestions": [
+            "What is the role of prompts in ReAct?",
+            "What does \"interleaved manner\" mean in the context of ReAct?",
+            "Can you explain how ReAct improves model interpretability?"
+        ],
+        "imagePath": "images/react.png"
+    }
+}

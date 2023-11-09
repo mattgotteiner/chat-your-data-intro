@@ -61,6 +61,9 @@ If you cannot generate a search query, return just the number 0.
     ]
 
     language_models_tutorial_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutorials", "languagemodels.json")
+    embeddings_tutorial_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutorials", "embeddings.json")
+    rag_tutorial_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutorials", "retrievalaugmentedgeneration.json")
+    agents_tutorial_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutorials", "agents.json")
 
     encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
@@ -91,6 +94,12 @@ If you cannot generate a search query, return just the number 0.
 
         self.tutorials = []
         with open(self.language_models_tutorial_path, "r") as f:
+            self.tutorials.append(json.load(f))
+        with open(self.embeddings_tutorial_path, "r") as f:
+            self.tutorials.append(json.load(f))
+        with open(self.rag_tutorial_path, "r") as f:
+            self.tutorials.append(json.load(f))
+        with open(self.agents_tutorial_path, "r") as f:
             self.tutorials.append(json.load(f))
 
     async def run_until_final_call(
